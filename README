@@ -2,3 +2,63 @@
 Reference:
 http://wiki.friendlyarm.com/wiki/index.php/NanoPi_M1
 
+
+
+8.2 Use Allwinner's Linux-3.4 BSP
+8.2.1 Preparations
+Visit this link download link and enter the "sources/nanopi-H3-bsp" directory and download all the source code.Use the 7-zip utility to extract it and a lihee directory and an Android directory will be generated. You can check that by running the following command:
+
+$ ls ./
+android lichee
+Or you can get it from our github:
+
+$ git clone https://github.com/friendlyarm/h3_lichee.git lichee
+Note: "lichee" is the project name named by Allwinner for its CPU's source code which contains the source code of U-boot, Linux kernel and various scripts.
+
+8.2.2 Install Cross Compiler
+Visit this site download link, enter the "toolchain" directory, download the cross compiler "gcc-linaro-arm.tar.xz" and copy it to the "lichee/brandy/toochain/" directory.
+8.2.3 Compile lichee Source Code
+Compilation of the H3's BSP source code must be done under a PC running a 64-bit Linux.The following cases were tested on Ubuntu-14.04 LTS-64bit:
+
+$ sudo apt-get install gawk git gnupg flex bison gperf build-essential \
+zip curl libc6-dev libncurses5-dev:i386 x11proto-core-dev \
+libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
+libgl1-mesa-dev g++-multilib mingw32 tofrodos \
+python-markdown libxml2-utils xsltproc zlib1g-dev:i386 u-boot-tools
+Enter the lichee directory and un the following command to compile the whole package:
+
+$ cd lichee/fa_tools
+$ ./build.sh -b nanopi-air -p linux -t all
+After this compilation succeeds a u-boot, Linux kernel and kernel modules will be generated.
+Note: the lichee directory contains a cross-compiler we have setup. When the build.sh script runs it will automatically call this cross-compiler.
+
+Type the following command to update the U-boot on your TF card:
+
+$ cd lichee/fa_tools/
+$ ./fuse.sh -d /dev/sdX -p linux -t u-boot
+Note: you need to replace "/dev/sdx" with the device name in your system.
+The boot.img and kernel modules are under the "linux-3.4/output" directory. You can copy the new boot.img file to your TF card's boot partition.
+
+8.3 Compile U-boot
+You can compile u-boot individually by using the following command:
+
+$ cd lichee/fa_tools/
+$ ./build.sh -b nanopi-air -p linux -t u-boot
+The gen_script.sh script patches the U-boot with Allwinner features. A U-boot without these features cannot work.
+Type the following command to update the U-boot on your TF card:
+
+$ cd lichee/fa_tools/
+$ ./fuse.sh -d /dev/sdX -p linux -t u-boot
+Note: you need to replace "/dev/sdx" with the device name in your system.
+
+8.4 Compile Linux Kernel
+If you want to compile the Linux kernel run the following command:
+
+$ cd lichee/fa_tools/
+$ ./build.sh -b nanopi-air -p linux -t kernel
+After the compilation is done a uImage and its kernel modules will be generated under "linux-3.4/output".
+
+8.5 Clean Source Code
+$ cd lichee/fa_tools/
+$ ./build.sh -b nanopi-air -p linux -t clean
+
